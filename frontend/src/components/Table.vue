@@ -3,20 +3,32 @@
 		<el-table :data="filterTableData">
 			<el-table-column label="Date" prop="date" sortable />
 			<el-table-column label="Name" prop="name" sortable />
+			<el-table-column label="Surname" prop="surname" sortable />
 			<el-table-column align="right">
 				<template #header>
 					<el-input v-model="search" placeholder="Type to search" />
 				</template>
 				<template #default="scope">
-					<el-button type="primary" @click="handleEdit(scope.$index, scope.row)" round>Edit</el-button>
+					<el-button type="primary" @click="editModalWindowVisible = true" round>Edit</el-button>
 					<el-button type="danger" @click="deleteModalWindowVisible = true" round>Delete</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
 	</div>
 	<div>
+		<el-dialog v-model="editModalWindowVisible" title="Warning" width="30%" center>
+			<span class="text"> It should be noted that the content will not be aligned in center by default </span>
+			<template #footer>
+				<span class="dialog-footer">
+					<el-button @click="editModalWindowVisible = false">Cancel</el-button>
+					<el-button type="primary" @click="editModalWindowVisible = false"> Confirm </el-button>
+				</span>
+			</template>
+		</el-dialog>
+	</div>
+	<div>
 		<el-dialog v-model="deleteModalWindowVisible" title="Warning" width="30%" center>
-			<span> It should be noted that the content will not be aligned in center by default </span>
+			<span class="text">Do you really want to delete a visitor?</span>
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="deleteModalWindowVisible = false">Cancel</el-button>
@@ -29,48 +41,31 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
+import { getVisitors } from '@/services/data';
 
 const deleteModalWindowVisible = ref(false);
-
-interface User {
-	date: string;
-	name: string;
-	address: string;
-}
-
+const editModalWindowVisible = ref(false);
+const tableData = ref([]);
 const search = ref('');
-const filterTableData = computed(() =>
-	tableData.filter((data) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase())),
-);
-const handleEdit = (index: number, row: User) => {
-	console.log(index, row);
-};
 
-const tableData: User[] = [
-	{
-		date: '2016-05-03',
-		name: 'Tom',
-		address: 'No. 189, Grove St, Los Angeles',
-	},
-	{
-		date: '2016-05-02',
-		name: 'John',
-		address: 'No. 189, Grove St, Los Angeles',
-	},
-	{
-		date: '2016-05-04',
-		name: 'Morgan',
-		address: 'No. 189, Grove St, Los Angeles',
-	},
-	{
-		date: '2016-05-01',
-		name: 'Jessy',
-		address: 'No. 189, Grove St, Los Angeles',
-	},
-];
+getVisitors(tableData);
+
+const filterTableData = computed(() =>
+	tableData.value.filter(
+		(data: any) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase()),
+	),
+);
 </script>
 
 <style scoped>
+.dialog-footer button:first-child {
+	margin-right: 10px;
+}
+
+.text {
+	font-size: 16px;
+}
+
 .table {
 	margin: auto;
 	width: 70%;
