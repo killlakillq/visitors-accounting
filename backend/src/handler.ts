@@ -5,7 +5,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 const client = new AWS.DynamoDB.DocumentClient({ region: AWS_REGION });
 
-module.exports.createVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const createVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 	const { id, name, email }: Visitor = JSON.parse(event.body!);
 
 	const params = {
@@ -27,7 +27,7 @@ module.exports.createVisitor = async (event: APIGatewayProxyEvent): Promise<APIG
 	}
 };
 
-module.exports.updateVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const updateVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 	const { id, name, email }: Visitor = JSON.parse(event.body!);
 
 	const params = {
@@ -53,7 +53,7 @@ module.exports.updateVisitor = async (event: APIGatewayProxyEvent): Promise<APIG
 	}
 };
 
-module.exports.deleteVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const deleteVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 	const { id } = event.pathParameters!;
 
 	const params = {
@@ -75,7 +75,7 @@ module.exports.deleteVisitor = async (event: APIGatewayProxyEvent): Promise<APIG
 	}
 };
 
-module.exports.getAllVisitors = async () => {
+export const getAllVisitors = async () => {
 	const params = {
 		TableName: DYNAMODB_TABLE,
 	};
@@ -94,7 +94,7 @@ module.exports.getAllVisitors = async () => {
 	}
 };
 
-module.exports.getVisitorById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const getVisitorById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 	const { id } = event.pathParameters!;
 
 	const params = {
