@@ -6,11 +6,11 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 const client = new AWS.DynamoDB.DocumentClient({ region: AWS_REGION });
 
 export const createVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-	const { id, name, email }: Visitor = JSON.parse(event.body!);
+	const { id, name, surname }: Visitor = JSON.parse(event.body!);
 
 	const params = {
 		TableName: DYNAMODB_TABLE,
-		Item: { id, name, email },
+		Item: { id, name, surname },
 	};
 
 	try {
@@ -28,14 +28,14 @@ export const createVisitor = async (event: APIGatewayProxyEvent): Promise<APIGat
 };
 
 export const updateVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-	const { id, name, email }: Visitor = JSON.parse(event.body!);
+	const { id, name, surname }: Visitor = JSON.parse(event.body!);
 
 	const params = {
 		TableName: DYNAMODB_TABLE,
 		Key: { id },
-		UpdateExpression: 'set #name = :name, #email = :email',
-		ExpressionAttributeNames: { '#name': 'name', '#email': 'email' },
-		ExpressionAttributeValues: { ':name': name, ':email': email },
+		UpdateExpression: 'set #name = :name, #surname = :surname',
+		ExpressionAttributeNames: { '#name': 'name', '#surname': 'surname' },
+		ExpressionAttributeValues: { ':name': name, ':surname': surname },
 		ReturnValues: 'ALL_NEW',
 	};
 

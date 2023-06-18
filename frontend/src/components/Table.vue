@@ -1,13 +1,11 @@
 <template>
 	<div class="table">
-		<el-table :data="filterTableData">
+		<el-table :data="tableData">
 			<el-table-column label="Date" prop="date" sortable />
 			<el-table-column label="Name" prop="name" sortable />
 			<el-table-column label="Surname" prop="surname" sortable />
-			<el-table-column align="right">
-				<template #header>
-					<el-input v-model="search" placeholder="Type to search" />
-				</template>
+
+			<el-table-column label="Operations" prop="operations">
 				<template #default="scope">
 					<el-button type="primary" @click="editModalWindowVisible = true" round>Edit</el-button>
 					<el-button type="danger" @click="deleteModalWindowVisible = true" round>Delete</el-button>
@@ -17,11 +15,11 @@
 	</div>
 	<div>
 		<el-dialog v-model="editModalWindowVisible" title="Warning" width="30%" center>
-			<span class="text"> It should be noted that the content will not be aligned in center by default </span>
+			<span class="text">It should be noted that the content will not be aligned in center by default</span>
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="editModalWindowVisible = false">Cancel</el-button>
-					<el-button type="primary" @click="editModalWindowVisible = false"> Confirm </el-button>
+					<el-button type="primary" @click="editModalWindowVisible = false">Confirm</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -32,7 +30,7 @@
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="deleteModalWindowVisible = false">Cancel</el-button>
-					<el-button type="primary" @click="deleteModalWindowVisible = false"> Confirm </el-button>
+					<el-button type="primary" @click="">Confirm</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -40,21 +38,18 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { getVisitors } from '@/services/data';
+import { ref } from 'vue';
+import { getVisitors, deleteVisitor } from '@/services/data';
 
 const deleteModalWindowVisible = ref(false);
 const editModalWindowVisible = ref(false);
-const tableData = ref([]);
-const search = ref('');
+const tableData = ref<any>([]);
 
 getVisitors(tableData);
 
-const filterTableData = computed(() =>
-	tableData.value.filter(
-		(data: any) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase()),
-	),
-);
+const handleSumbit = (id: any) => {
+	deleteVisitor(id);
+};
 </script>
 
 <style scoped>
@@ -68,7 +63,7 @@ const filterTableData = computed(() =>
 
 .table {
 	margin: auto;
-	width: 70%;
+	width: 40%;
 	padding: 50px;
 }
 
