@@ -1,17 +1,17 @@
 <template>
 	<div class="table">
 		<el-table :data="tableData">
-			<el-table-column label="Date" prop="date" sortable />
-			<el-table-column label="Name" prop="name" sortable />
-			<el-table-column label="Surname" prop="surname" sortable />
-
+			<el-table-column label="Date" prop="Date" sortable />
+			<el-table-column label="Name" prop="Name" sortable />
+			<el-table-column label="Surname" prop="Surname" sortable />
 			<el-table-column label="Operations" prop="operations">
 				<template #default="scope">
-					<el-button type="primary" @click="editModalWindowVisible = true" round>Edit</el-button>
-					<el-button type="danger" @click="deleteModalWindowVisible = true" round>Delete</el-button>
+					<el-button type="primary" @click="editModalWindowVisible = true">Edit</el-button>
+					<el-button type="danger" @click="showDeleteConfirmation(scope.row.id)">Delete</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
+		<AddVisitor />
 	</div>
 	<div>
 		<el-dialog v-model="editModalWindowVisible" title="Warning" width="30%" center>
@@ -30,7 +30,7 @@
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="deleteModalWindowVisible = false">Cancel</el-button>
-					<el-button type="primary" @click="">Confirm</el-button>
+					<el-button type="primary" @click="deleteItem">Confirm</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -40,15 +40,26 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { getVisitors, deleteVisitor } from '@/services/data';
+import AddVisitor from './AddVisitor.vue';
 
 const deleteModalWindowVisible = ref(false);
 const editModalWindowVisible = ref(false);
 const tableData = ref<any>([]);
+const deleteId = ref('');
 
 getVisitors(tableData);
 
-const handleSumbit = (id: any) => {
-	deleteVisitor(id);
+const showDeleteConfirmation = (id: string) => {
+	deleteModalWindowVisible.value = true;
+	deleteId.value = id;
+};
+
+const deleteItem = () => {
+	deleteVisitor(deleteId.value);
+	deleteModalWindowVisible.value = false;
+	setTimeout(() => {
+		window.location.reload();
+	}, 500);
 };
 </script>
 
@@ -71,15 +82,5 @@ const handleSumbit = (id: any) => {
 	border-collapse: collapse;
 	width: 100%;
 	border: 1px solid #ccc;
-}
-
-.el-table th,
-.el-table td {
-	border: 1px solid #ccc;
-	padding: 8px;
-}
-
-.el-table th {
-	background-color: #f2f2f2;
 }
 </style>
