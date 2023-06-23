@@ -10,9 +10,9 @@ export const getVisitors = async (tableData: Ref<Object[]>) => {
 	}
 };
 
-export const createVisitor = async (id: string, name: string, surname: string) => {
+export const createVisitor = async (name: string, surname: string) => {
 	try {
-		const requestBody = { id, name, surname };
+		const requestBody = { name, surname };
 		await axios.post('https://jgigyym431.execute-api.us-east-1.amazonaws.com/visitor/create', requestBody);
 	} catch (error) {
 		console.error(error);

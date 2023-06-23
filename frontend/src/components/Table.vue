@@ -1,9 +1,9 @@
 <template>
 	<div class="table">
 		<el-table :data="tableData">
-			<el-table-column label="Date" prop="Date" sortable />
-			<el-table-column label="Name" prop="Name" sortable />
-			<el-table-column label="Surname" prop="Surname" sortable />
+			<el-table-column label="Date" prop="date" sortable />
+			<el-table-column label="Name" prop="name" sortable />
+			<el-table-column label="Surname" prop="surname" sortable />
 			<el-table-column label="Operations" prop="operations">
 				<template #default="scope">
 					<el-button type="primary" @click="editModalWindowVisible = true">Edit</el-button>
@@ -57,9 +57,7 @@ const showDeleteConfirmation = (id: string) => {
 const deleteItem = () => {
 	deleteVisitor(deleteId.value);
 	deleteModalWindowVisible.value = false;
-	setTimeout(() => {
-		window.location.reload();
-	}, 500);
+
 };
 </script>
 

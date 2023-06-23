@@ -5,8 +5,8 @@
 	<div>
 		<el-dialog v-model="addModalWindowVisible" title="New visitor" width="30%" center>
 			<div>
-				<el-input v-model="name" class="input" placeholder="Name" />
-				<el-input v-model="surname" class="input" placeholder="Surname" />
+				<el-input v-model="body.name" class="input" placeholder="Name" />
+				<el-input v-model="body.surname" class="input" placeholder="Surname" />
 			</div>
 			<template #footer>
 				<span class="dialog-footer">
@@ -22,16 +22,13 @@
 import { createVisitor } from '@/services/data';
 import { ref } from 'vue';
 const addModalWindowVisible = ref(false);
-const name = ref('');
-const surname = ref('');
-const requestBody = ref({
-	id: '',
+const body = ref({
 	name: '',
 	surname: '',
 });
 
 const handleSubmit = () => {
-	createVisitor(requestBody.value.id, requestBody.value.name, requestBody.value.surname);
+	createVisitor(body.value.name, body.value.surname);
 	addModalWindowVisible.value = false;
 };
 </script>
