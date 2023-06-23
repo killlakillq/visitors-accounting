@@ -6,20 +6,23 @@
 			<el-table-column label="Surname" prop="surname" sortable />
 			<el-table-column label="Operations" prop="operations">
 				<template #default="scope">
-					<el-button type="primary" @click="editModalWindowVisible = true">Edit</el-button>
-					<el-button type="danger" @click="showDeleteConfirmation(scope.row.id)">Delete</el-button>
+					<el-button type="primary" :icon="Edit" @click="showUpdateConfirmation(scope.row.id)" />
+					<el-button type="danger" :icon="Delete" @click="showDeleteConfirmation(scope.row.id)" />
 				</template>
 			</el-table-column>
 		</el-table>
 		<AddVisitor />
 	</div>
 	<div>
-		<el-dialog v-model="editModalWindowVisible" title="Warning" width="30%" center>
-			<span class="text">It should be noted that the content will not be aligned in center by default</span>
+		<el-dialog v-model="editModalWindowVisible" title="Update visitor" width="30%" center>
+			<div>
+				<el-input v-model="body.name" class="input" placeholder="Name" />
+				<el-input v-model="body.surname" class="input" placeholder="Surname" />
+			</div>
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="editModalWindowVisible = false">Cancel</el-button>
-					<el-button type="primary" @click="editModalWindowVisible = false">Confirm</el-button>
+					<el-button type="primary" @click="updateItem">Confirm</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -39,12 +42,18 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { getVisitors, deleteVisitor } from '@/services/data';
+import { getVisitors, deleteVisitor, updateVisitor } from '@/services/data';
+import { Edit, Delete } from '@element-plus/icons-vue';
 import AddVisitor from './AddVisitor.vue';
 
 const deleteModalWindowVisible = ref(false);
 const editModalWindowVisible = ref(false);
 const tableData = ref<any>([]);
+const body = ref({
+	name: '',
+	surname: '',
+});
+const updateId = ref('');
 const deleteId = ref('');
 
 getVisitors(tableData);
@@ -57,13 +66,25 @@ const showDeleteConfirmation = (id: string) => {
 const deleteItem = () => {
 	deleteVisitor(deleteId.value);
 	deleteModalWindowVisible.value = false;
+};
 
+const showUpdateConfirmation = (id: string) => {
+	editModalWindowVisible.value = true;
+	updateId.value = id;
+};
+
+const updateItem = () => {
+	updateVisitor(updateId.value, body.value.name, body.value.surname);
+	editModalWindowVisible.value = false;
 };
 </script>
 
 <style scoped>
 .dialog-footer button:first-child {
 	margin-right: 10px;
+}
+.input {
+	margin-bottom: 10px;
 }
 
 .text {

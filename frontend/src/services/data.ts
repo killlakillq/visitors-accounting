@@ -26,3 +26,14 @@ export const deleteVisitor = async (id: string) => {
 		console.error(error);
 	}
 };
+
+export const updateVisitor = async (id: string, name: string, surname: string) => {
+	try {
+		await axios.put(`https://jgigyym431.execute-api.us-east-1.amazonaws.com/visitor/update/${id}`, {
+			name,
+			surname,
+		});
+	} catch (error) {
+		console.error(error);
+	}
+};
