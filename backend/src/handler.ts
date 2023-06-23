@@ -1,34 +1,83 @@
 import AWS from 'aws-sdk';
 import { AWS_REGION, DYNAMODB_TABLE } from './shared/constants';
 import { Visitor } from './shared/interfaces/visitor.interface';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import express, { Request, Response } from 'express';
+import serverless from 'serverless-http';
+import cors from 'cors';
+import { v4 as uuidv4 } from 'uuid';
 
 const client = new AWS.DynamoDB.DocumentClient({ region: AWS_REGION });
 
-export const createVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-	const { id, name, surname }: Visitor = JSON.parse(event.body!);
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+app.post('/visitor/create', async (req: Request, res: Response) => {
+	const { name, surname }: Visitor = req.body;
+
+	const currentTime = Date.now();
+	const date = new Date(currentTime);
 
 	const params = {
 		TableName: DYNAMODB_TABLE,
-		Item: { id, name, surname },
+		Item: {
+			id: uuidv4(),
+			name: name,
+			surname: surname,
+			date: `${date.toISOString()}`,
+		},
 	};
 
 	try {
 		await client.put(params).promise();
-		return {
-			statusCode: 200,
-			body: JSON.stringify({ message: 'Visitor created successfully' }),
-		};
+		res.status(201).json({ name, surname });
 	} catch (error) {
 		return {
 			statusCode: 500,
 			body: JSON.stringify({ message: 'Failed to create visitor' }),
 		};
 	}
-};
+});
 
-export const updateVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-	const { id, name, surname }: Visitor = JSON.parse(event.body!);
+app.get('/visitors', async (req: Request, res: Response) => {
+	const params = {
+		TableName: DYNAMODB_TABLE,
+	};
+
+	try {
+		const result = await client.scan(params).promise();
+		const visitors = result.Items;
+
+		res.status(200).json(visitors);
+	} catch (error) {
+		res.status(500).json({ message: 'Failed to fetch visitors' });
+	}
+});
+
+app.get('/visitor/:id', async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	const params = {
+		TableName: DYNAMODB_TABLE,
+		Key: { id },
+	};
+
+	try {
+		const result = await client.get(params).promise();
+
+		if (result.Item) {
+			res.status(404).json({ message: 'Visitor not found' });
+		}
+		res.status(200).json(result.Item);
+	} catch (error) {
+		res.status(500).json({ message: 'Failed to fetch visitor' });
+	}
+});
+
+app.put('/visitor/update/:id', async (req: Request, res: Response) => {
+	const { name, surname }: Visitor = req.body;
+	const { id } = req.params;
 
 	const params = {
 		TableName: DYNAMODB_TABLE,
@@ -41,20 +90,14 @@ export const updateVisitor = async (event: APIGatewayProxyEvent): Promise<APIGat
 
 	try {
 		const result = await client.update(params).promise();
-		return {
-			statusCode: 200,
-			body: JSON.stringify(result.Attributes),
-		};
+		res.status(200).json(result.Attributes);
 	} catch (error) {
-		return {
-			statusCode: 500,
-			body: JSON.stringify({ message: 'Failed to update visitor' }),
-		};
+		res.status(500).json({ message: 'Failed to update visitor' });
 	}
-};
+});
 
-export const deleteVisitor = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-	const { id } = event.pathParameters!;
+app.delete('/visitor/delete/:id', async (req: Request, res: Response) => {
+	const { id } = req.params;
 
 	const params = {
 		TableName: DYNAMODB_TABLE,
@@ -63,63 +106,10 @@ export const deleteVisitor = async (event: APIGatewayProxyEvent): Promise<APIGat
 
 	try {
 		await client.delete(params).promise();
-		return {
-			statusCode: 200,
-			body: JSON.stringify({ message: 'Visitor deleted successfully' }),
-		};
+		res.status(200).json({ message: 'Visitor deleted successfully' });
 	} catch (error) {
-		return {
-			statusCode: 500,
-			body: JSON.stringify({ message: 'Failed to delete visitor' }),
-		};
+		res.status(500).json({ message: 'Failed to delete visitor' });
 	}
-};
+});
 
-export const getAllVisitors = async () => {
-	const params = {
-		TableName: DYNAMODB_TABLE,
-	};
-
-	try {
-		const result = await client.scan(params).promise();
-		return {
-			statusCode: 200,
-			body: JSON.stringify(result.Items),
-		};
-	} catch (error) {
-		return {
-			statusCode: 500,
-			body: JSON.stringify({ message: 'Failed to fetch visitors' }),
-		};
-	}
-};
-
-export const getVisitorById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-	const { id } = event.pathParameters!;
-
-	const params = {
-		TableName: DYNAMODB_TABLE,
-		Key: { id },
-	};
-
-	try {
-		const result = await client.get(params).promise();
-
-		if (result.Item) {
-			return {
-				statusCode: 404,
-				body: JSON.stringify({ message: 'Visitor not found' }),
-			};
-		}
-
-		return {
-			statusCode: 200,
-			body: JSON.stringify(result.Item),
-		};
-	} catch (error) {
-		return {
-			statusCode: 500,
-			body: JSON.stringify({ message: 'Failed to fetch visitor' }),
-		};
-	}
-};
+module.exports.handler = serverless(app);

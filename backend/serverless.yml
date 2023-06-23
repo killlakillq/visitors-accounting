@@ -8,8 +8,6 @@ provider:
   lambdaHashingVersion: '20201221'
   environment:
     DYNAMODB_TABLE: ${self:service}-${sls:stage}
-  httpApi:
-    cors: true
   iam:
     role:
       statements:
@@ -24,40 +22,10 @@ provider:
           Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 functions:
-  createVisitor:
-    handler: dist/handler.createVisitor
+  api:
+    handler: dist/handler.handler
     events:
-      - httpApi:
-          path: /visitor/create
-          method: post
-
-  updateVisitor:
-    handler: dist/handler.updateVisitor
-    events:
-      - httpApi:
-          path: /visitor/update/{id}
-          method: put
-
-  deleteVisitor:
-    handler: dist/handler.deleteVisitor
-    events:
-      - httpApi:
-          path: /visitor/delete/{id}
-          method: delete
-
-  getAllVisitors:
-    handler: dist/handler.getAllVisitors
-    events:
-      - httpApi:
-          path: /visitors
-          method: get
-
-  getVisitorById:
-    handler: dist/handler.getVisitorById
-    events:
-      - httpApi:
-          path: /visitor/{id}
-          method: get
+      - httpApi: '*'
 
 resources:
   Resources:
